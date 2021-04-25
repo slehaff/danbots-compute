@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-6">
+        <p>Scans sendes med POST og følgende parametre</p>
+        <ul>
+            <li>deviceid: tekstreng der er unic for scanneren</li>
+            <li>color_picture:  billede</li>
+            <li>blackWhite_picture: billede </li>
+            <li>noLight_picture: billed</li>
+        </ul>
+        {% crispy form %}
+    </div>
+{% endblock %}
