@@ -3,6 +3,7 @@
 #
 import os
 import threading
+import datetime 
 from compute.settings import DATA_PATH #, TEMP_PATH
 from .send2api import send_picture, send_ply_picture
 
@@ -25,9 +26,13 @@ def save_uploaded_file(handle, filepath):
 def receive_pic_set(device, pic1, pic2, pic3):
     print("Picture received from device:", device)
     print(pic1, pic2, pic3)
-    tmp_folder = DATA_PATH / 'temp'
+    datestr = datetime.date.today().isoformat()
+    tmp_folder = DATA_PATH / 'temp' / datestr
+    print (tmp_folder)
     os.makedirs(tmp_folder, exist_ok=True)
     save_uploaded_file(pic1, tmp_folder / pic1.name )
+    save_uploaded_file(pic2, tmp_folder / pic2.name )
+    save_uploaded_file(pic3, tmp_folder / pic3.name )
     result = send_picture(device, tmp_folder / pic1.name )
     if not result:
         print("Send picture failed")
