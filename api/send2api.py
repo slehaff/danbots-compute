@@ -13,6 +13,8 @@ def send_file(url, params, file_path):
     path = file_path
     if platform=="win32":
         path=str(file_path)
+    else:
+        path=str(file_path)
     try:
         req = requests.post(url, timeout=HTTP_TIMEOUT, files={"picture": path}, data=params)
     except requests.exceptions.RequestException as ex:
