@@ -4,8 +4,9 @@ from crispy_forms.layout import Submit
 
 class Form3dScan(forms.Form):
     deviceid = forms.CharField(required=True, max_length=32, strip=True)
+    pictureno = forms.IntegerField(required=True)
     color_picture = forms.ImageField(label="Color Picture", required=True)
-    blackWhite_picture = forms.ImageField(label="Black/White Picture", required=True)
+    french_picture = forms.ImageField(label="French Picture", required=True)
     noLight_picture = forms.ImageField(label="NoLight Picture", required=True)
 
     def __init__(self, *args, **kwargs):
