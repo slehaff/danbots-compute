@@ -4,9 +4,10 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 #from compute.settings import DATA_PATH
 
+from compute3d.receive import start_scan, receive_pic_set, stop_scan
+
 from .forms import Form3dScan
 #from .scan3d import receive_pic_set, stop_scan
-from compute3d.receive import start_scan, receive_pic_set, stop_scan
 
 def save_uploaded_file(handle, filepath):
     with open(filepath, 'wb+') as destination:
@@ -19,6 +20,11 @@ def start3d(request):
         deviceid = request.POST['deviceid']
         start_scan(deviceid)
         return JsonResponse({'result':"OK"})
+    if request.method == 'GET':
+        deviceid = request.GET['deviceid']
+        start_scan(deviceid)
+        return JsonResponse({'result':"OK"})
+
     return JsonResponse({'result':"False", "reason": "Missing deviceid"})
 
 

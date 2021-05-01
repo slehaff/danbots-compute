@@ -5,4 +5,5 @@ urlpatterns = [
     path("", views.test),
     path("sendply/", views.sendply),
     path("sendpicture/", views.sendpicture),
+    path('errorlog/', views.errorlog)
 ]

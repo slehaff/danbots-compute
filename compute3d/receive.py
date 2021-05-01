@@ -3,9 +3,15 @@
 #
 import os
 import threading
-import datetime 
+import datetime
+import shutil
 from compute.settings import DATA_PATH #, TEMP_PATH
-from send2live.send2live import send_picture, send_ply_picture
+from send2live.send2live import send_picture #, send_ply_picture
+from compute3d.nn_process import process_input
+
+COLOR_PICTURE = 'image8.jpg'
+DIAS_PICTURE = 'image0.jpg'
+NOLIGHT_PICTURE = 'image9.jpg'
 
 def background(myfunction):
     '''
@@ -24,29 +30,27 @@ def save_uploaded_file(handle, filepath):
 
 def start_scan(device):
     print('Scan Start device:', device)
-    return
+    infolder = DATA_PATH / 'input' / device
+    datestr = datetime.datetime.now().isoformat()
+    outfolder = DATA_PATH / 'arkiv' / device
+    os.makedirs(outfolder, exist_ok=True)
+    shutil.move(infolder, outfolder / datestr)
 
 #@background
 def receive_pic_set(device, set_number, color_picture, french_picture, noligt_picture):
     print("Picture received device:", device, set_number)
-     
+    folder = DATA_PATH / 'input' / device / str(set_number)
+    os.makedirs(folder, exist_ok=True)
+    save_uploaded_file(color_picture, folder / COLOR_PICTURE )
+    save_uploaded_file(french_picture, folder / DIAS_PICTURE )
+    save_uploaded_file(noligt_picture, folder / NOLIGHT_PICTURE )
 
-    datestr = datetime.date.today().isoformat()
-    tmp_folder = DATA_PATH / 'temp' / datestr
+    process_input(folder)
 
-    os.makedirs(tmp_folder, exist_ok=True)
-    save_uploaded_file(color_picture, tmp_folder / color_picture.name )
-    save_uploaded_file(french_picture, tmp_folder / french_picture.name )
-    save_uploaded_file(noligt_picture, tmp_folder / noligt_picture.name )
-    result = send_picture(device, tmp_folder / color_picture.name )
+    result = send_picture(device, folder / COLOR_PICTURE )
     if not result:
         print("Send picture failed")
-    #result = send_ply_picture(device, tmp_folder / pic1.name )
-    #if not result:
-    #    print("Send picture failed")
-
     return True
 
 def stop_scan(device):
     print('Scan Stop device:', device)
-    return
