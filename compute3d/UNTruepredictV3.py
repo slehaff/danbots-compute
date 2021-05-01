@@ -69,16 +69,16 @@ def normalize_image(img):
     img = img/np.max(img)
     return img
 
-
+MODEL_PATH = '/var/www/danbots/compute/data/nnmodels/'
 
 def load_H_model():
     # model = tensorflow.keras.models.load_model('/home/samir/dblive/cnnpredict/models/UNmodels/UNet02-224-fringe-wrapdata'+'-200-adam-noBN.h5')
-    model = tensorflow.keras.models.load_model('/home/samir/dblive/cnnpredict/models/UN30models/UN30-400-WUN-100-V2.h5')
+    model = tensorflow.keras.models.load_model(MODEL_PATH + 'UN30-400-WUN-100-V2.h5')
     return(model)
 # /home/samir/dblive/cnnpredict/models/cnnres01-220-modelwrap1'+'-200-adam-noBN.h5
 
 def load_L_model():
-    model = tensorflow.keras.models.load_model('/home/samir/dblive/cnnpredict/models/UNmodels/UN30-UNW-800TF-120.h5')
+    model = tensorflow.keras.models.load_model(MODEL_PATH + 'UN30-UNW-800TF-120.h5')
     return(model)
 
 def makemonohigh(folder):
@@ -445,28 +445,38 @@ def makeclouds(scanfolder, count):
 
 ####################################################################################################################
 
-# folder = '/home/samir/serverless/new1-469/1/fringeA/' + str(i)+'.png'
-folder = '/home/samir/Desktop/blender/pycode/inputscans/render'
-bfolder = '/home/samir/Desktop/blender/pycode/inputscans/'
+def nnprocess_input(folder):
+    Lmodel = load_L_model()
+    Hmodel = load_H_model()   
+
+    mask(folder)
+    nnHprocess(folder)
+    nnLprocess(folder)
+    newDepth(folder, 200)
+    nngenerate_pointcloud(folder+'/'+ 'image8.png', folder+'/'+ 'mask.png', folder+'/' + 'nndepth.npy', folder+'/' +'pointcl-nndepth.ply')
 
 
-Lmodel = load_L_model()
-Hmodel = load_H_model()
+# folder = '/home/samir/Desktop/blender/pycode/inputscans/render'
+# bfolder = '/home/samir/Desktop/blender/pycode/inputscans/'
 
-for i in range(len(os.listdir(bfolder))-1):
+
+# Lmodel = load_L_model()
+# Hmodel = load_H_model()
+
+# for i in range(len(os.listdir(bfolder))-1):
     # folder = '/home/samir/Desktop/blender/pycode/inputscans/render'
     # folder = '/home/samir/db3/scan/static/scan_folder/scan_im_folder'
 
-    print('i:', i)
-    mask(folder+str(i)+'/')
+    # print('i:', i)
+    # mask(folder+str(i)+'/')
     # unwrap_k(folder + str(i)+'/')
     # makemonohigh(folder+'i')
 
-    nnHprocess(folder + str(i)+'/')
-    nnLprocess(folder + str(i)+'/')
+    # nnHprocess(folder + str(i)+'/')
+    # nnLprocess(folder + str(i)+'/')
     # unwrap_k(folder + str(i)+'/')
-    newDepth(folder+ str(i)+'/' , 200)
-    nngenerate_pointcloud(folder+str(i) +'/'+ 'image8.png', folder+str(i) +'/'+ 'mask.png', folder+str(i)+'/' + 'nndepth.npy', folder+str(i)+'/' +'pointcl-nndepth.ply')
+    # newDepth(folder+ str(i)+'/' , 200)
+    # nngenerate_pointcloud(folder+str(i) +'/'+ 'image8.png', folder+str(i) +'/'+ 'mask.png', folder+str(i)+'/' + 'nndepth.npy', folder+str(i)+'/' +'pointcl-nndepth.ply')
 
     # repairK(folder + str(i)+'/'+'unwrap1.png', folder + str(i)+'/'+'nnkdata.png', folder + str(i)+'/'+'krepdata.png' )
 
@@ -482,160 +492,3 @@ for i in range(len(os.listdir(bfolder))-1):
 
 
 #========================================================= Parking Lot============================================================
-
-
-
-# def repairK(wrapfile, kfile, krepfile):
-#     high = wrapfile
-#     wdata = cv2.imread(high, 1)
-#     krepdata = np.zeros((H, W), dtype=np.float)
-#     k = kfile
-#     kdata = cv2.imread(k, 1)
-
-#     for j in range(1,160):
-#         for i in range(1,160):
-#             if ((wdata[i,j][0] - wdata[i-1,j][0])<0):
-#                 print('minus')
-
-#                 if ((wdata[i+1,j][0] - wdata[i,j][0])>0):  #bottom spike
-#                     krepdata[i,j] = krepdata[i-1,j]+ 7
-#                     print('krepdata:', krepdata)
-#     cv2.imwrite(krepfile, 3.0*krepdata)
-
-
-
-# def unwrap_r(low_f_file, high_f_file, folder):
-#     filelow = folder + low_f_file
-#     filehigh = folder +  high_f_file
-#     wraplow = np.zeros((rheight, rwidth), dtype=np.float64)
-#     wraphigh = np.zeros((rheight, rwidth), dtype=np.float64)
-#     unwrapdata = np.zeros((rheight, rwidth), dtype=np.float64)
-#     im_unwrap = np.zeros((rheight, rwidth), dtype=np.float64)
-#     wraplow = np.load(filelow)  # To be continued
-#     wraphigh = np.load(filehigh)
-#     print('highrange=', np.ptp(wraphigh), np.max(wraphigh), np.min(wraphigh) )
-#     print('lowrange=', np.ptp(wraplow), np.max(wraplow), np.min(wraplow) )
-#     # print('high:', wraphigh)
-#     # print('low:', wraplow)
-    
-#     unwrapdata = np.zeros((rheight, rwidth), dtype=np.float64)
-#     kdata = np.zeros((rheight, rwidth), dtype=np.int64)
-#     # wrap1data = cv2.GaussianBlur(wrap1data, (0, 0), 3, 3)
-#     # wrap2data = cv2.GaussianBlur(wrap2data, (0, 0), 4, 4)
-#     for i in range(rheight):
-#         for j in range(rwidth):
-#             kdata[i, j] = round((high_freq/low_freq * (wraplow[i, j])- wraphigh[i, j])/(2*PI))
-#             # unwrapdata[i,j] = .1*(1.1*wraphigh[i, j]/np.max(wraphigh) +2*PI* kdata[i, j]/np.max(wraphigh))
-#             # unwrapdata[i,j] = 1*(1*wraphigh[i, j] +2*PI* kdata[i, j])
-#     unwrapdata = np.add(wraphigh, np.multiply(2*PI,kdata) )
-#     print('kdata:', np.ptp(np.multiply(1,kdata)))
-#     print('unwrap:', np.ptp(unwrapdata))
-#     # print("I'm in unwrap_r")
-#     print('kdata:', kdata[::40, ::40])
-#     wr_save = folder + 'unwrap.npy'
-#     np.save(wr_save, unwrapdata, allow_pickle=False)
-#     maxval = np.amax(unwrapdata)
-#     print('maxval:', maxval)
-#     # im_unwrap = 255*unwrapdata/ maxval# np.max(unwrapdata)*255)
-#     im_unwrap = 3*unwrapdata# np.max(unwrapdata)*255)
-#     # unwrapdata/np.max(unwrapdata)*255
-#     cv2.imwrite(folder + 'unwrap.png', im_unwrap)
-    # cv2.imwrite(folder + 'kdata.png', np.multiply(2*PI,kdata))
-
-
-# def unwrap(request):
-#     # folder = ScanFolder.objects.last().folderName
-#     folder = '/home/samir/db2/scan/static/scan_folder/scan_im_folder/'
-#     ref_folder = '/home/samir/db2/scan/static/scan_folder/scan_ref_folder'
-#     three_folder = '/home/samir/db2/3D/static/3scan_folder'
-#     unwrap_r('scan_wrap2.npy', 'scan_wrap1.npy', folder )
-#     deduct_ref('unwrap.npy', 'unwrap.npy', folder, ref_folder)
-#     # generate_color_pointcloud(folder + 'image1.png', folder + '/abs_unwrap.png', folder + '/pointcl.ply')
-#     generate_json_pointcloud(folder + 'image1.png', folder +
-#                              '/abs_unwrap.png', three_folder + '/pointcl.json')
-#     return render(request, 'scantemplate.html')
-
-
-
-# def unwrap_r(folder):
-#     filelow = folder + '/scan_wrap2.npy'
-#     filehigh = folder +  '/scan_wrap1.npy'
-#     wraplow = np.zeros((H, W), dtype=np.float64)
-#     wraphigh = np.zeros((H, W), dtype=np.float64)
-#     unwrapdata = np.zeros((H, W), dtype=np.float64)
-#     im_unwrap = np.zeros((H, W), dtype=np.float64)
-#     wraplow = np.load(filelow)
-#     wraplow = resize(wraplow, W, H)  # To be continued
-#     wraphigh = np.load(filehigh)
-#     wraphigh = resize(wraphigh, W, H)
-#     print('highrange=', np.ptp(wraphigh), np.max(wraphigh), np.min(wraphigh) )
-#     print('lowrange=', np.ptp(wraplow), np.max(wraplow), np.min(wraplow) )
-#     # print('high:', wraphigh)
-#     # print('low:', wraplow)
-    
-#     unwrapdata = np.zeros((H, W), dtype=np.float64)
-#     kdata = np.zeros((H, W), dtype=np.int64)
-#     # wrap1data = cv2.GaussianBlur(wrap1data, (0, 0), 3, 3)
-#     # wrap2data = cv2.GaussianBlur(wrap2data, (0, 0), 4, 4)
-#     for i in range(H):
-#         for j in range(W):
-#             kdata[i, j] = round((high_freq/low_freq * (wraplow[i, j])- wraphigh[i, j])/(2*PI))
-#             # unwrapdata[i,j] = .1*(1.1*wraphigh[i, j]/np.max(wraphigh) +2*PI* kdata[i, j]/np.max(wraphigh))
-#             # unwrapdata[i,j] = 1*(1*wraphigh[i, j] +2*PI* kdata[i, j])
-#     unwrapdata = np.add(wraphigh, np.multiply(2*PI,kdata) )
-#     print('kdata:', np.ptp(np.multiply(1,kdata)))
-#     print('unwrap:', np.ptp(unwrapdata))
-#     # print("I'm in unwrap_r")
-#     print('kdata:', kdata[::40, ::40])
-#     wr_save = folder + '/unwrap.npy'
-#     np.save(wr_save, unwrapdata, allow_pickle=False)
-#     maxval = np.amax(unwrapdata)
-#     print('maxval:', maxval)
-#     # im_unwrap = 255*unwrapdata/ maxval# np.max(unwrapdata)*255)
-#     im_unwrap = 3*unwrapdata# np.max(unwrapdata)*255)
-#     # unwrapdata/np.max(unwrapdata)*255
-#     cv2.imwrite(folder + '/unwrap.png', im_unwrap)
-#     cv2.imwrite(folder + '/kdata.png', np.multiply(2*PI,kdata))
-#     np.save(folder+'/kdata.npy', kdata, allow_pickle=False )
-
-
-
-
-# def makeDepth(folder, basecount):
-#     basefile = '/home/samir/Desktop/blender/pycode/scanplanes/DDbase.npy'
-#     DBase = np.load(basefile)
-#     # unwrap = np.load(folder+'unwrap.npy' )
-#     # print(unwrap.shape)
-#     unwrap = cv2.imread(folder + 'nnkunwrap.png', 1).astype(np.float32)
-#     unwrap = cv2.cvtColor(unwrap, cv2.COLOR_BGR2GRAY)
-#     print(unwrap.shape)
-#     # print('DBase:', np.amax(DBase), np.amin(DBase))
-#     # print('unwrap:', np.amax(unwrap), np.amin(unwrap))
-#     depth = np.zeros((H, W), dtype=np.float64)
-#     for i in range(W):
-#         # print('i:', i)
-#         for j in range(H):
-#             s=0
-#             for s in range(basecount-1):
-#                 if (abs(unwrap[i,j]-DBase[i,j,s])<.15): #used -10 to offset scans449 to avoiod saturation
-#                     break
-#                 else:
-#                     s+=1
-
-#             # print(i,j,unwrap[i,j],DBase[i,j,s])
-#             depth[i,j]=s
-#             # print('found:',i,j, unwrap[i,j], DBase[i,j,s],s)
-    
-#     # print('depth:', np.amax(depth), np.amin(depth))
-#     im_depth = depth# np.max(unwrapdata)*255)
-#     cv2.imwrite(folder + 'nndepth.png', im_depth)
-    
-
-# def unw(scanfolder, count):
-#     for i in range(count):
-#         print('start')
-
-#         folder = '/home/samir/Desktop/blender/pycode/'+scanfolder+'/render'+ str(i)+'/'
-#         print(folder)
-#         if path.exists(folder):
-#             unwrap_r('scan_wrap2.npy', 'scan_wrap1.npy', folder )
