@@ -28,7 +28,7 @@ def convert_blackwhite(filepath, outfilepath):
     grey = ImageOps.grayscale(im1)
     grey.save(outfilepath)
 
-@background
+#@background
 def process_input(folder):
     """ Process a incoming folder with a pictureset """
     print("Processeing", folder)
